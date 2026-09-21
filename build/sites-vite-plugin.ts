@@ -176,6 +176,7 @@ export function sites({ mockAuth = true } = {}): Plugin {
       const outputDirectory = resolve(root, "dist", ".openai");
       const hostingConfig = resolve(root, ".openai", "hosting.json");
       const drizzleSource = resolve(root, "drizzle");
+      const legacyAssets = resolve(root, "legacy-next", "static");
 
       await rm(outputDirectory, { recursive: true, force: true });
       await mkdir(outputDirectory, { recursive: true });
@@ -184,6 +185,15 @@ export function sites({ mockAuth = true } = {}): Plugin {
       if (await exists(drizzleSource)) {
         await cp(drizzleSource, resolve(outputDirectory, "drizzle"), {
           recursive: true,
+        });
+      }
+      // Keep scripts referenced by older cached HTML available after the
+      // switch from Next static export to Vinext's Worker build.
+      if (await exists(legacyAssets)) {
+        await cp(legacyAssets, resolve(root, "dist", "client", "_next", "static"), {
+          recursive: true,
+          force: false,
+          errorOnExist: false,
         });
       }
     },

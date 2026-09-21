@@ -25,4 +25,3 @@ Use the installed pnpm version specified in `package.json`.
 No payment or booking backend is included.
 
 # DIAMOND
-# DIAMOND

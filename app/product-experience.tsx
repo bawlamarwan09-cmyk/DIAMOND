@@ -37,7 +37,7 @@ function ProductHeader({ bagCount, openBag }: { bagCount: number; openBag: () =>
       <div className="wrap product-header-inner">
         <Link className="product-back" href="/#collections" aria-label="Back to the collection"><ArrowLeft size={16} /> <span>THE COLLECTION</span></Link>
         <Link className="wordmark product-wordmark" href="/" aria-label="Lab Grant Diamond home"><span>LAB GRANT <span className="wordmark-diamond">DIAMOND</span></span><small>A BRIGHTER KIND OF FOREVER</small></Link>
-        <button className="bag-button" onClick={openBag} aria-label={`Open bag, ${bagCount} item${bagCount === 1 ? "" : "s"}`}><span>MY BAG</span><span className="bag-count">{bagCount}</span></button>
+        <div className="product-header-actions"><Link className="product-book-link" href="/contact#book">BOOK A CONVERSATION</Link><button className="bag-button" onClick={openBag} aria-label={`Open bag, ${bagCount} item${bagCount === 1 ? "" : "s"}`}><span>MY BAG</span><span className="bag-count">{bagCount}</span></button></div>
       </div>
     </header>
   );
