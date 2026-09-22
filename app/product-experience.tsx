@@ -1,139 +1,149 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowLeft, ArrowRight, Check, ChevronDown, Heart, Minus, Plus, ShieldCheck, Sparkles, Truck, X } from "lucide-react";
-import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { ArrowLeft, ArrowRight, ChevronDown, Menu, Pause, Play, Search, Volume2, VolumeX } from "lucide-react";
 
-type Metal = { id: string; name: string; tone: string; hex: string };
 type ProductImage = { file: string; label: string; alt: string };
 
-const metals: Metal[] = [
-  { id: "yellow-gold", name: "18k Yellow Gold", tone: "Warm champagne", hex: "#bf8b45" },
-  { id: "rose-gold", name: "18k Rose Gold", tone: "Soft blush", hex: "#c98876" },
-  { id: "platinum", name: "Platinum", tone: "Polished silver", hex: "#d7d4cc" },
-];
-
-const sizes = ["48", "49", "50", "51", "52", "53", "54", "55", "56", "57", "58"];
-
 const productImages: ProductImage[] = [
-  { file: "solitaire", label: "Front view", alt: "Oval diamond solitaire ring on a dark stone plinth" },
-  { file: "trust", label: "The details", alt: "Diamond ring beside a grading certificate and black jewelry box" },
-  { file: "hero", label: "The setting", alt: "Close view of a warm gold diamond ring above dark sculptural stone" },
-  { file: "intro", label: "Side profile", alt: "Side profile of a ring catching a champagne light trail" },
+  { file: "solitaire", label: "Front view", alt: "Oval lab-grown diamond solitaire engagement ring" },
+  { file: "featured", label: "Three-quarter view", alt: "Diamond engagement ring in warm champagne light" },
+  { file: "hero", label: "Setting detail", alt: "Close view of a sculpted gold diamond ring setting" },
+  { file: "trust", label: "Certification", alt: "Diamond ring presented beside its grading certificate" },
 ];
 
-const details = [
-  ["The centre stone", "Oval lab-grown diamond · 1.00 ct · F colour · VS clarity"],
-  ["The setting", "Low-profile cathedral setting with a fine pavé band"],
-  ["The finish", "Hand-polished 18k gold or platinum, made to order"],
+const specifications = [
+  ["Centre diamond", "Oval lab-grown diamond, available from 1.00 carat"],
+  ["Diamond quality", "F colour · VS clarity · independently certified"],
+  ["Setting", "Low-profile cathedral setting with a fine pavé band"],
+  ["Metal", "18k yellow gold, 18k rose gold or platinum"],
 ];
 
-function ProductHeader({ bagCount, openBag }: { bagCount: number; openBag: () => void }) {
+function ProductHeader() {
+  const [menuOpen, setMenuOpen] = useState(false);
   return (
-    <header className="product-header">
-      <div className="wrap product-header-inner">
-        <Link className="product-back" href="/#collections" aria-label="Back to the collection"><ArrowLeft size={16} /> <span>THE COLLECTION</span></Link>
-        <Link className="wordmark product-wordmark" href="/" aria-label="Lab Grant Diamond home"><span>LAB GRANT <span className="wordmark-diamond">DIAMOND</span></span><small>A BRIGHTER KIND OF FOREVER</small></Link>
-        <div className="product-header-actions"><Link className="product-book-link" href="/contact#book">BOOK A CONVERSATION</Link><button className="bag-button" onClick={openBag} aria-label={`Open bag, ${bagCount} item${bagCount === 1 ? "" : "s"}`}><span>MY BAG</span><span className="bag-count">{bagCount}</span></button></div>
+    <header className="ring-header">
+      <div className="ring-header-primary wrap">
+        <button className="ring-header-control" onClick={() => setMenuOpen((value) => !value)} aria-expanded={menuOpen} aria-controls="ring-navigation"><Menu size={15} /><span>MENU</span></button>
+        <Link className="wordmark ring-wordmark" href="/" aria-label="Lab Grant Diamond home"><span>LAB GRANT <span className="wordmark-diamond">DIAMOND</span></span><small>A BRIGHTER KIND OF FOREVER</small></Link>
+        <div className="ring-header-tools"><Link href="/contact#book">CLIENT SERVICES</Link><Link href="/collections" aria-label="Search the collections"><Search size={15} /></Link></div>
       </div>
+      <nav id="ring-navigation" className={`ring-navigation ${menuOpen ? "is-open" : ""}`} aria-label="Ring navigation">
+        <div className="wrap"><Link href="/engagement-rings">ENGAGEMENT RINGS</Link><Link href="/wedding-bands">WEDDING BANDS</Link><Link href="/bespoke">BESPOKE</Link><Link href="/diamond-guide">DIAMOND GUIDE</Link><Link href="/appointments">APPOINTMENTS</Link></div>
+      </nav>
     </header>
   );
 }
 
-function ProductGallery({ active, setActive }: { active: number; setActive: (index: number) => void }) {
+function RingGallery() {
+  const [active, setActive] = useState(0);
   const current = productImages[active];
   return (
-    <div className="product-gallery" aria-label="The Solitaire product gallery">
-      <div className="product-main-image">
-        <Image src={`/media/${current.file}.webp`} alt={current.alt} fill priority={active === 0} sizes="(max-width: 900px) 100vw, 58vw" className="product-image" />
-        <span className="gallery-count">{String(active + 1).padStart(2, "0")} / {String(productImages.length).padStart(2, "0")}</span>
-        <span className="gallery-label">{current.label}</span>
+    <div className="ring-gallery" aria-label="The Solitaire product gallery">
+      <div className="ring-gallery-stage">
+        <Image key={current.file} src={`/media/${current.file}.webp`} alt={current.alt} fill priority={active === 0} sizes="(max-width: 900px) 100vw, 55vw" className="ring-gallery-image" />
+        <span className="ring-gallery-number">{String(active + 1).padStart(2, "0")} / {String(productImages.length).padStart(2, "0")}</span>
+        <span className="ring-gallery-caption">{current.label}</span>
       </div>
-      <div className="product-thumbnails" role="tablist" aria-label="Product views">
-        {productImages.map((image, index) => (
-          <button key={image.file} role="tab" aria-selected={active === index} className={active === index ? "active" : ""} onClick={() => setActive(index)} aria-label={`Show ${image.label}`}>
-            <Image src={`/media/${image.file}.webp`} alt="" fill sizes="100px" className="product-thumb-image" />
-            <span>{String(index + 1).padStart(2, "0")}</span>
-          </button>
-        ))}
+      <div className="ring-gallery-dots" role="tablist" aria-label="Choose a product view">
+        {productImages.map((image, index) => <button key={image.file} role="tab" aria-selected={active === index} onClick={() => setActive(index)} aria-label={`Show ${image.label}`}><span /></button>)}
+      </div>
+      <div className="ring-gallery-thumbs">
+        {productImages.map((image, index) => <button key={image.file} className={active === index ? "is-active" : ""} onClick={() => setActive(index)} aria-label={`Show ${image.label}`}><Image src={`/media/${image.file}.webp`} alt="" fill sizes="120px" /></button>)}
       </div>
     </div>
   );
 }
 
-function ProductOption({ label, children, note }: { label: string; children: React.ReactNode; note?: string }) {
-  return <section className="product-option"><div className="product-option-heading"><h2>{label}</h2>{note && <span>{note}</span>}</div>{children}</section>;
-}
+function WeddingFilm() {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [playing, setPlaying] = useState(true);
+  const [muted, setMuted] = useState(true);
 
-function BagDialog({ open, onOpenChange, metal, size, quantity }: { open: boolean; onOpenChange: (open: boolean) => void; metal: Metal; size: string; quantity: number }) {
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) video.play().then(() => setPlaying(true)).catch(() => setPlaying(false));
+      else { video.pause(); setPlaying(false); }
+    }, { threshold: 0.35 });
+    observer.observe(video);
+    return () => observer.disconnect();
+  }, []);
+
+  const togglePlayback = () => {
+    const video = videoRef.current;
+    if (!video) return;
+    if (video.paused) video.play().then(() => setPlaying(true)).catch(() => setPlaying(false));
+    else { video.pause(); setPlaying(false); }
+  };
+
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="bag-dialog">
-        <div className="bag-dialog-top"><div><p className="eyebrow">YOUR BAG</p><DialogTitle>One beautiful beginning.</DialogTitle></div><button aria-label="Close bag" onClick={() => onOpenChange(false)}><X size={18} /></button></div>
-        <DialogDescription className="sr-only">Your selected Lab Grant Diamond ring.</DialogDescription>
-        <div className="bag-item"><div className="bag-item-image"><Image src="/media/solitaire.webp" alt="The Solitaire ring" fill sizes="150px" className="cover" /></div><div className="bag-item-copy"><p className="eyebrow">THE SOLITAIRE</p><h3>Oval Diamond Ring</h3><p>{metal.name} · Size {size}</p><span>Qty {quantity}</span></div><strong>AED 4,200</strong></div>
-        <div className="bag-summary"><span>Made to order</span><strong>Complimentary delivery</strong></div>
-        <button className="button button-gold bag-cta" onClick={() => onOpenChange(false)}>CONTINUE TO CHECKOUT <ArrowRight size={17} /></button>
-        <p className="bag-note">Checkout is shown as a design preview. Payment and inventory are not connected yet.</p>
-      </DialogContent>
-    </Dialog>
+    <section className="ring-film" aria-label="A wedding moment">
+      <video ref={videoRef} autoPlay muted={muted} loop playsInline preload="metadata" poster="/media/wedding-hero.webp"><source src="/media/wedding-hero.mp4" type="video/mp4" /></video>
+      <div className="ring-film-shade" />
+      <div className="ring-film-copy"><p className="eyebrow">A PROMISE, BEAUTIFULLY LIT</p><h2>The moment<br /><em>becomes forever.</em></h2><p>A ring made for the quiet pause before yes, the celebration after it, and every ordinary morning still to come.</p></div>
+      <div className="ring-film-controls"><button onClick={togglePlayback} aria-label={playing ? "Pause film" : "Play film"}>{playing ? <Pause size={15} /> : <Play size={15} />}</button><button onClick={() => { if (videoRef.current) videoRef.current.muted = !muted; setMuted((value) => !value); }} aria-label={muted ? "Turn sound on" : "Mute film"}>{muted ? <VolumeX size={16} /> : <Volume2 size={16} />}</button></div>
+    </section>
   );
 }
 
 export default function ProductExperience({ slug }: { slug: string }) {
-  const [activeImage, setActiveImage] = useState(0);
-  const [metalId, setMetalId] = useState("yellow-gold");
-  const [size, setSize] = useState("52");
-  const [quantity, setQuantity] = useState(1);
-  const [bagOpen, setBagOpen] = useState(false);
-  const [sizeGuideOpen, setSizeGuideOpen] = useState(false);
-  const [saved, setSaved] = useState(false);
-  const [openDetail, setOpenDetail] = useState<string | null>(null);
-  const metal = useMemo(() => metals.find((item) => item.id === metalId) ?? metals[0], [metalId]);
+  const [priceOpen, setPriceOpen] = useState(false);
+  const [openSpec, setOpenSpec] = useState<string | null>(specifications[0][0]);
 
   useEffect(() => { window.scrollTo({ top: 0, behavior: "auto" }); }, []);
 
-  if (slug !== "solitaire-ring") {
-    return <main className="product-not-found"><p className="eyebrow">THE COLLECTION</p><h1>This chapter is still being written.</h1><Link className="button button-gold" href="/#collections">RETURN TO THE COLLECTION <ArrowLeft size={17} /></Link></main>;
-  }
+  if (slug !== "solitaire-ring") return <main className="product-not-found"><p className="eyebrow">THE COLLECTION</p><h1>This chapter is still being written.</h1><Link className="button button-gold" href="/collections">RETURN TO THE COLLECTION <ArrowLeft size={17} /></Link></main>;
 
   return (
-    <div className="product-page">
-      <ProductHeader bagCount={bagOpen ? 1 : 0} openBag={() => setBagOpen(true)} />
+    <div className="ring-product-page">
+      <ProductHeader />
       <main>
-        <section className="product-hero wrap">
-          <ProductGallery active={activeImage} setActive={setActiveImage} />
-          <div className="product-information">
-            <div className="product-breadcrumb"><Link href="/#collections">THE RINGS</Link><span>/</span><span>THE SOLITAIRE</span></div>
-            <div className="product-title-row"><div><p className="eyebrow">ENGAGEMENT RINGS · LGD-001</p><h1>The Solitaire</h1><p className="product-subtitle">A forever kind of love.</p></div><button className={`wishlist-button ${saved ? "saved" : ""}`} onClick={() => setSaved((value) => !value)} aria-label={saved ? "Remove from wishlist" : "Add to wishlist"} aria-pressed={saved}><Heart size={21} fill={saved ? "currentColor" : "none"} /></button></div>
-            <div className="product-price-row"><strong>AED 4,200</strong><span>From · made to order</span></div>
-            <p className="product-lede">A luminous oval centre stone, held in a sculpted setting and finished with a fine pavé band. Designed to catch the light quietly, then keep it.</p>
-            <div className="product-rule" />
-            <ProductOption label="Metal" note={metal.name}>
-              <RadioGroup className="metal-options" value={metalId} onValueChange={setMetalId} aria-label="Choose a metal">
-                {metals.map((item) => <label key={item.id} className={`metal-option ${metalId === item.id ? "selected" : ""}`}><RadioGroupItem value={item.id} id={item.id} /><span className="metal-swatch" style={{ background: item.hex }} /><span><b>{item.name}</b><small>{item.tone}</small></span></label>)}
-              </RadioGroup>
-            </ProductOption>
-            <ProductOption label="Ring size" note="Need help?" >
-              <div className="size-options" aria-label="Choose a ring size">{sizes.map((item) => <button key={item} className={size === item ? "selected" : ""} onClick={() => setSize(item)} aria-pressed={size === item}>{item}</button>)}</div>
-              <button className="size-guide" onClick={() => setSizeGuideOpen(true)}>VIEW THE SIZE GUIDE <ArrowRight size={15} /></button>
-            </ProductOption>
-            <div className="product-purchase-row"><div className="quantity-control" aria-label="Quantity"><button onClick={() => setQuantity((value) => Math.max(1, value - 1))} aria-label="Decrease quantity"><Minus size={15} /></button><span>{quantity}</span><button onClick={() => setQuantity((value) => value + 1)} aria-label="Increase quantity"><Plus size={15} /></button></div><button className="button button-gold add-bag-button" onClick={() => setBagOpen(true)}>ADD TO BAG <ArrowRight size={18} /></button></div>
-            <div className="delivery-notes"><div><Truck size={19} /><span><b>Complimentary delivery</b><small>Insured across the UAE</small></span></div><div><ShieldCheck size={19} /><span><b>Lifetime service</b><small>Here for every milestone</small></span></div><div><Sparkles size={19} /><span><b>Made to order</b><small>Ready in approximately 3–4 weeks</small></span></div></div>
+        <section className="ring-product-hero">
+          <RingGallery />
+          <div className="ring-product-copy">
+            <p className="ring-kicker"><Link href="/engagement-rings">ENGAGEMENT RINGS</Link> / THE SOLITAIRE</p>
+            <p className="eyebrow">LAB GRANT SIGNATURE</p>
+            <h1>The Solitaire<br /><em>Oval Diamond Ring</em></h1>
+            <p className="ring-product-description">A luminous oval centre diamond rises from a finely sculpted setting. Its clean silhouette lets the stone hold the light without distraction — modern, intimate and enduring.</p>
+            <p className="ring-product-meta">Available from 1.00 carat in 18k gold or platinum.</p>
+            <p className="ring-product-reference">PRODUCT REFERENCE: LGD-001</p>
+            <div className="ring-product-actions"><Link className="ring-primary-action" href="/appointments">SCHEDULE AN APPOINTMENT <ArrowRight size={15} /></Link><Link className="ring-secondary-action" href="/contact#book">REQUEST ASSISTANCE</Link></div>
+            <div className="ring-price-note"><button onClick={() => setPriceOpen((value) => !value)} aria-expanded={priceOpen}><span>ABOUT PRICING &amp; AVAILABILITY</span><ChevronDown size={15} /></button>{priceOpen && <p>Every centre diamond is individually selected. Final pricing reflects carat weight, diamond grade and your chosen metal. Our client advisor will prepare a personal quotation.</p>}</div>
           </div>
         </section>
-        <section className="product-story"><div className="wrap product-story-grid"><div><p className="eyebrow">THE STORY OF THE SOLITAIRE</p><h2>One stone.<br /><em>A thousand little moments.</em></h2></div><div><p>There is something quietly powerful about a solitaire. The centre stone carries the whole feeling — clear, luminous and entirely itself.</p><p>Our oval silhouette is designed with a low, elegant profile, so the ring feels effortless from the first question to every day that follows.</p><Link href="/#craftsmanship" className="text-link">SEE THE CRAFT <ArrowRight size={17} /></Link></div></div></section>
-        <section className="product-details-section wrap"><div className="details-heading"><p className="eyebrow">THE DETAILS</p><h2>Made to hold<br /><em>your meaning.</em></h2></div><div className="details-list">{details.map(([title, copy]) => <div key={title} className="detail-row"><button onClick={() => setOpenDetail(openDetail === title ? null : title)} aria-expanded={openDetail === title}><span>{title}</span><ChevronDown size={18} /></button>{openDetail === title && <p>{copy}</p>}</div>)}</div></section>
-        <section className="product-information-section"><div className="wrap information-grid"><div><p className="eyebrow">YOUR RING, AT A GLANCE</p><h2>Every detail<br /><em>considered.</em></h2><p>The Solitaire brings the stone, setting and finish together in one quiet silhouette.</p></div><dl><div><dt>Design</dt><dd>Oval diamond solitaire ring</dd></div><div><dt>Centre stone</dt><dd>1.00 ct · F colour · VS clarity</dd></div><div><dt>Setting</dt><dd>Low-profile cathedral · fine pavé band</dd></div><div><dt>Metal options</dt><dd>18k Yellow Gold · 18k Rose Gold · Platinum</dd></div><div><dt>Preparation</dt><dd>Made to order · approximately 3–4 weeks</dd></div></dl></div></section>
-        <section className="product-service"><div className="wrap product-service-inner"><div><p className="eyebrow">A BRIGHTER WAY TO CHOOSE</p><h2>A ring that feels<br /><em>like your own.</em></h2></div><div className="service-grid"><div><Check size={16} /><span>IGI-certified diamond<small>Authenticity, clearly considered.</small></span></div><div><Check size={16} /><span>Insured UAE delivery<small>From our studio to your door.</small></span></div><div><Check size={16} /><span>Lifetime service<small>Care for every chapter after.</small></span></div></div></div></section>
-        <section className="product-discover wrap"><div><p className="eyebrow">EXPLORE MORE</p><h2>Another expression<br /><em>of your story.</em></h2></div><div className="product-discover-links"><Link href="/#collections"><span className="discover-picture"><Image src="/media/bands.webp" alt="Gold wedding bands on a dark plinth" fill sizes="(max-width: 600px) 85vw, 28vw" className="cover" /></span><span>Wedding bands <ArrowRight size={18} /></span></Link><Link href="/#bespoke"><span className="discover-picture"><Image src="/media/bespoke.webp" alt="Bespoke ring design inspiration" fill sizes="(max-width: 600px) 85vw, 28vw" className="cover" /></span><span>Bespoke inspiration <ArrowRight size={18} /></span></Link></div></section>
+
+        <WeddingFilm />
+
+        <section className="ring-promise wrap">
+          <div className="ring-promise-image"><Image src="/media/wedding-vows.webp" alt="A newly married couple sharing an intimate wedding moment" fill sizes="(max-width: 760px) 100vw, 56vw" /></div>
+          <div className="ring-promise-copy"><p className="eyebrow">THE ART OF THE SOLITAIRE</p><h2>Nothing between<br />the diamond and<br /><em>its light.</em></h2><p>The setting is drawn around the stone, not the other way around. Each curve is refined by hand so the oval appears to float above a slender band.</p><Link className="ring-text-link" href="/our-craft">DISCOVER OUR CRAFT <ArrowRight size={15} /></Link></div>
+        </section>
+
+        <section className="ring-detail-feature">
+          <div className="ring-detail-copy"><p className="eyebrow">DESIGNED AROUND YOU</p><h2>Quiet from afar.<br /><em>Remarkable up close.</em></h2><p>A low profile keeps the ring elegant and effortless to wear. Delicate pavé adds a soft line of brilliance while the centre stone remains the focus.</p></div>
+          <div className="ring-detail-image"><Image src="/media/intro.webp" alt="Side profile of the solitaire ring illuminated by a champagne light" fill sizes="(max-width: 760px) 100vw, 50vw" /></div>
+        </section>
+
+        <section className="ring-specifications wrap">
+          <div><p className="eyebrow">THE DETAILS</p><h2>Every line<br /><em>considered.</em></h2><p className="ring-spec-intro">Your ring is made to order and can be refined with our advisor during a private appointment.</p></div>
+          <div className="ring-spec-list">{specifications.map(([title, copy]) => <div className="ring-spec" key={title}><button onClick={() => setOpenSpec(openSpec === title ? null : title)} aria-expanded={openSpec === title}><span>{title}</span><ChevronDown size={17} /></button>{openSpec === title && <p>{copy}</p>}</div>)}</div>
+        </section>
+
+        <section className="ring-suggestions wrap">
+          <div className="ring-section-heading"><p className="eyebrow">LAB GRANT SUGGESTS</p><h2>Continue your story.</h2></div>
+          <div className="ring-suggestion-grid">
+            <Link href="/wedding-bands"><span className="ring-suggestion-image"><Image src="/media/bands.webp" alt="Lab-grown diamond wedding bands" fill sizes="(max-width: 700px) 100vw, 48vw" /></span><span className="ring-suggestion-copy"><small>THE PERFECT PAIRING</small><strong>Wedding Bands</strong><span>EXPLORE <ArrowRight size={14} /></span></span></Link>
+            <Link href="/bespoke"><span className="ring-suggestion-image"><Image src="/media/bespoke.webp" alt="Bespoke diamond ring design" fill sizes="(max-width: 700px) 100vw, 48vw" /></span><span className="ring-suggestion-copy"><small>MADE FOR ONE STORY</small><strong>Bespoke Design</strong><span>EXPLORE <ArrowRight size={14} /></span></span></Link>
+          </div>
+        </section>
+
+        <section className="ring-consultation"><div className="wrap"><p className="eyebrow">YOUR PRIVATE APPOINTMENT</p><h2>Step into your<br /><em>forever moment.</em></h2><p>Meet with a Lab Grant advisor to compare diamonds, refine the setting and create a ring that feels unmistakably yours.</p><Link href="/appointments">BOOK A CONVERSATION <ArrowRight size={16} /></Link></div></section>
       </main>
-      <footer className="site-footer product-footer"><div className="wrap"><div className="footer-top"><Link className="wordmark" href="/"><span>LAB GRANT <span className="wordmark-diamond">DIAMOND</span></span><small>A BRIGHTER KIND OF FOREVER</small></Link><nav aria-label="Footer navigation"><Link href="/#collections">THE COLLECTION</Link><Link href="/#craftsmanship">CRAFTSMANSHIP</Link><Link href="/#our-world">OUR WORLD</Link></nav><Link href="/" className="back-top" aria-label="Back to home"><ArrowLeft size={20} /></Link></div><div className="footer-bottom"><span>© {new Date().getUTCFullYear()} Lab Grant Diamond.</span><span>MODERN LOVE. TIMELESS BRILLIANCE.</span></div></div></footer>
-      <BagDialog open={bagOpen} onOpenChange={setBagOpen} metal={metal} size={size} quantity={quantity} />
-      <Dialog open={sizeGuideOpen} onOpenChange={setSizeGuideOpen}><DialogContent className="size-guide-dialog"><p className="eyebrow">FIND YOUR FIT</p><DialogTitle>Ring size guide</DialogTitle><DialogDescription>Our sizes are listed in EU measurements. Measure the inside circumference of a ring that fits the intended finger, then choose the nearest size.</DialogDescription><div className="size-guide-table" role="table" aria-label="EU ring sizes and inner circumference"><div role="row"><span role="columnheader">EU SIZE</span><span role="columnheader">INNER CIRCUMFERENCE</span></div>{[48,50,52,54,56,58].map(value => <div role="row" key={value}><span role="cell">{value}</span><span role="cell">Approximately {value} mm</span></div>)}</div><p className="size-guide-help">Measure at the end of the day and check the finger on the correct hand. If you are between sizes, consider the fit you prefer before choosing.</p><button className="button button-gold" onClick={() => setSizeGuideOpen(false)}>BACK TO THE RING <ArrowRight size={17} /></button></DialogContent></Dialog>
+      <footer className="ring-footer"><div className="wrap"><Link className="wordmark" href="/"><span>LAB GRANT <span className="wordmark-diamond">DIAMOND</span></span><small>A BRIGHTER KIND OF FOREVER</small></Link><div><Link href="/engagement-rings">ENGAGEMENT RINGS</Link><Link href="/appointments">APPOINTMENTS</Link><Link href="/contact">CONTACT</Link></div><p>© {new Date().getUTCFullYear()} LAB GRANT DIAMOND</p></div></footer>
     </div>
   );
 }
